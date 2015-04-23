@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="market_array">
+        <item>Select market</item>
+        <item>Μαρινόπουλος</item>
+        <item>Μασούτης</item>
+        <item>Lidl</item>
+    </string-array>
+</resources>
