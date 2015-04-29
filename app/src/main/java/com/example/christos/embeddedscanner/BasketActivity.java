@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -13,18 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 import de.timroes.android.listview.EnhancedListView;
@@ -33,22 +28,78 @@ import de.timroes.android.listview.EnhancedListView;
 public class BasketActivity extends ActionBarActivity {
 
     private ArrayList<String> basketProducts = new ArrayList<String>();
-    private ArrayList<Boolean> thumbs = new ArrayList<Boolean>();
+    private ArrayList<Boolean> checked = new ArrayList<Boolean>();  //ta ticks diathrountai sto orientation change mesa ap to manifest file opou to activity den ginetai destroy
+    //private ArrayList<Boolean> thumbs = new ArrayList<Boolean>();
     ArrayAdapter<String> adapter;
+    Button bttnBestPrice;
+    Button bttnDelete;
+    CheckBox chSelectAll;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_basket);
-        Button bttnBestPrice = (Button) findViewById(R.id.bestPriceButton);
+        bttnBestPrice = (Button) findViewById(R.id.bestPriceButton);
+        bttnDelete = (Button) findViewById(R.id.deleteButton);
+        chSelectAll = (CheckBox) findViewById(R.id.selectAllCheckBox);
+
+        bttnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean atLeastOneChecked=false;
+                for(int i=0, j=checked.size(); i<j; i++)
+                {
+                    if(checked.get(i)==true)
+                    {
+                        atLeastOneChecked = true;
+                        break;
+                    }
+                }
+
+                if(atLeastOneChecked==true)
+                {
+                    ArrayList<Boolean> checkedCopy = new ArrayList<Boolean>(checked); //logw parallhlou thread mporei na prokupsei provlima an peirazoun tin idia lista me to epomeno loop
+                    FileDeleteMultAsync async = new FileDeleteMultAsync();            //opote dhmiourw antigrafo kai peirazw auto sto allo thread
+                    async.execute(checkedCopy);
+
+                    for (int i = checked.size() - 1; i >= 0; i--)
+                    {
+                        if (checked.get(i) == true)
+                        {
+                            checked.remove(i);
+                            basketProducts.remove(i);
+                        }
+                    }
+
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+        chSelectAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(chSelectAll.isChecked())
+                {
+                    for (int i = 0, j = checked.size(); i < j; i++) checked.set(i, true);
+                }
+                else
+                {
+                    for (int i = 0, j = checked.size(); i < j; i++) checked.set(i, false);
+                }
+                adapter.notifyDataSetChanged();
+            }
+        });
+
         final Context context = this;
         bttnBestPrice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for(int i=0; i<thumbs.size(); i++)
+                /*for(int i=0; i<thumbs.size(); i++)
                 {
                     thumbs.set(i, false);
                     adapter.notifyDataSetChanged();
-                }
+                }*/
                 if(InternetConnectivity.checkInternet(getApplicationContext())==false)  //check for internet connection
                 {
                     AlertDialog alertDialog = new AlertDialog.Builder(context).create();
@@ -77,7 +128,8 @@ public class BasketActivity extends ActionBarActivity {
 
 
         FileManipulation.populateListFromFile("basket.txt", basketProducts, getApplicationContext());
-        for(int i=0, j=basketProducts.size(); i<j; i++) thumbs.add(false);
+        for(int i=0, j=basketProducts.size(); i<j; i++) checked.add(false);                                 //SOS
+        //for(int i=0, j=basketProducts.size(); i<j; i++) thumbs.add(false);
         populateListView();
     }
 
@@ -89,7 +141,8 @@ public class BasketActivity extends ActionBarActivity {
             @Override
             public EnhancedListView.Undoable onDismiss(EnhancedListView enhancedListView, int i) {
                 basketProducts.remove(i);
-                thumbs.remove(i);
+                checked.remove(i);
+                //thumbs.remove(i);
                 FileDeleteAsync async = new FileDeleteAsync();
                 async.execute(i);
                 adapter.notifyDataSetChanged();
@@ -98,6 +151,16 @@ public class BasketActivity extends ActionBarActivity {
         });
         list.enableSwipeToDismiss();
         list.setAdapter(adapter);
+    }
+
+    private class FileDeleteMultAsync extends AsyncTask<ArrayList<Boolean>, String, Void>
+    {
+        @Override
+        protected Void doInBackground(ArrayList<Boolean>... args) {
+            FileManipulation.deleteMultiple(args[0], "basket.txt", getApplicationContext());
+
+            return null;
+        }
     }
 
     private class FileDeleteAsync extends AsyncTask<Integer, String, Void>
@@ -114,8 +177,9 @@ public class BasketActivity extends ActionBarActivity {
 
     private static class ViewHolder
     {
-        ImageButton thumbImageButton;
+        //ImageButton thumbImageButton;
         TextView makeText;
+        CheckBox checkBox;
     }
 
     private class MyListAdapter extends ArrayAdapter<String>
@@ -128,26 +192,40 @@ public class BasketActivity extends ActionBarActivity {
         private View itemView;
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent)
+        public View getView(final int position, View convertView, ViewGroup parent)
         {
             ViewHolder holder;
             itemView = convertView;
+
             if(itemView==null)
             {
                 itemView = getLayoutInflater().inflate(R.layout.item_view_2, parent, false);
                 holder = new ViewHolder();
-                holder.thumbImageButton = (ImageButton) itemView.findViewById(R.id.thumbImageButton);
+                //holder.thumbImageButton = (ImageButton) itemView.findViewById(R.id.thumbImageButton);
                 holder.makeText = (TextView) itemView.findViewById(R.id.productNameTextView);
+                holder.checkBox = (CheckBox) itemView.findViewById(R.id.checkBox);
                 itemView.setTag(holder);
+                //itemView.setBackgroundColor(Color.rgb(245, 245, 245));
             }
             else
             {
                 holder = (ViewHolder) itemView.getTag();
             }
 
+            holder.checkBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    checked.set(position, !checked.get(position));
+                    notifyDataSetChanged();
+                }
+            });
+
+            holder.checkBox.setChecked(checked.get(position));
+            holder.checkBox.setTag(position);
+
             //find the string
             String currentString = basketProducts.get(position);
-            Boolean currentThumb = thumbs.get(position);
+            /*Boolean currentThumb = thumbs.get(position);
 
             if(currentThumb==false)
             {
@@ -177,7 +255,7 @@ public class BasketActivity extends ActionBarActivity {
                        notifyDataSetChanged();
                    }
                 }
-            });
+            });*/
 
             //make
             holder.makeText.setText(currentString);

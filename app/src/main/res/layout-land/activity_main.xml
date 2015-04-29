@@ -29,8 +29,8 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="number"
-        android:id="@+id/editText2"
+        android:inputType="numberDecimal"
+        android:id="@+id/priceEditText"
         android:hint="Enter product price"
         android:layout_below="@+id/nameEditText"
         android:layout_centerHorizontal="true"
@@ -67,7 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/spinner"
-        android:layout_below="@+id/editText2"
+        android:layout_below="@+id/priceEditText"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="5dp" />
 

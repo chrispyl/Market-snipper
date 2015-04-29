@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,24 +21,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.Scanner;
-
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class MainActivity extends ActionBarActivity {
 
     private TextView contentTxt;
     private EditText nameEditText;
+    private EditText priceEditText;
     private ImageButton bttnAddToFavourites;
     private ImageButton bttnAddToBasket;
     private Button bttnSubmit;
@@ -48,6 +39,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         contentTxt = (TextView) findViewById(R.id.contentTextView);
         nameEditText = (EditText) findViewById(R.id.nameEditText);
+        priceEditText = (EditText) findViewById(R.id.priceEditText);
         bttnAddToFavourites = (ImageButton) findViewById(R.id.bttnAddToFavourites);
         bttnAddToBasket = (ImageButton) findViewById(R.id.bttnAddToBasket);
         bttnSubmit = (Button) findViewById(R.id.bttnSubmit);
@@ -55,16 +47,25 @@ public class MainActivity extends ActionBarActivity {
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.market_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setPrompt("Select Market");
         spinner.setAdapter(adapter);
+        spinner.setAdapter(
+                new NothingSelectedSpinnerAdapter(
+                        adapter,
+                        R.layout.contact_spinner_row_nothing_selected,
+                        // R.layout.contact_spinner_nothing_selected_dropdown, // Optional
+                        this));
 
         bttnAddToFavourites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(FileManipulation.checkIfIn(nameEditText.getText().toString(), "favourites.txt", getApplicationContext())==false)
+                String productName=nameEditText.getText().toString().trim();
+                if(FileManipulation.checkIfIn(productName, "favourites.txt", getApplicationContext())==false)
                 {
-                    if(nameEditText.getText().toString().matches(".*\\w.*"))
+                    if(productName.matches(".*\\w.*"))
                     {
-                        FileManipulation.writeToFile(nameEditText.getText().toString(), "favourites.txt", getApplicationContext());
+                        FileWriteAsync async = new FileWriteAsync();
+                        async.execute(productName, "favourites.txt");
                         Toast.makeText(getBaseContext(), "Saved to favourites", Toast.LENGTH_SHORT).show();
                     }
                     else
@@ -83,11 +84,13 @@ public class MainActivity extends ActionBarActivity {
         bttnAddToBasket.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(FileManipulation.checkIfIn(nameEditText.getText().toString(), "basket.txt", getApplicationContext())==false)
+                String productName=nameEditText.getText().toString().trim();
+                if(FileManipulation.checkIfIn(productName, "basket.txt", getApplicationContext())==false)
                 {
-                    if(nameEditText.getText().toString().matches(".*\\w.*"))
+                    if(productName.matches(".*\\w.*"))
                     {
-                        FileManipulation.writeToFile(nameEditText.getText().toString(), "basket.txt", getApplicationContext());
+                        FileWriteAsync async = new FileWriteAsync();
+                        async.execute(productName, "basket.txt");
                         Toast.makeText(getBaseContext(), "Saved to basket", Toast.LENGTH_SHORT).show();
                     }
                     else
@@ -118,11 +121,30 @@ public class MainActivity extends ActionBarActivity {
                 }
                 else
                 {
-                    Intent newIntent = new Intent(getApplicationContext(), PricesActivity.class);
-                    newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(newIntent);
+                    boolean dotInSide=false;
+                    String priceString=priceEditText.getText().toString();
+                    if(priceString.length()>0)
+                    {
+                        if (priceString.charAt(0) == '.' || priceString.charAt(priceString.length() - 1) == '.') {
+                            dotInSide = true;
+                        }
 
-                    //communicate with database
+                        if (dotInSide == true) {
+                            Toast.makeText(getBaseContext(), "Wrong number format", Toast.LENGTH_SHORT).show();
+                        }
+                        else
+                        {
+                            Intent newIntent = new Intent(getApplicationContext(), PricesActivity.class);
+                            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(newIntent);
+                            finish();
+                            //communicate with database
+                        }
+                    }
+                    else
+                    {
+                        Toast.makeText(getBaseContext(), "Insert price", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -134,6 +156,20 @@ public class MainActivity extends ActionBarActivity {
         {
             String s =(String) bundle.get("Barcode_content");
             contentTxt.setText(s);
+        }
+    }
+
+    private class FileWriteAsync extends AsyncTask<String, String, Void>
+    {
+        @Override
+        protected Void doInBackground(String... args) {
+        //args[0] to eiserxomeno string, args[1] to onoma tou arxeiou
+            FileManipulation.writeToFile(args[0], args[1], getApplicationContext());
+            ArrayList<String> sortedList = new ArrayList<String>(FileManipulation.getArrayListFromFile(args[1], getApplicationContext()));
+            Collections.sort(sortedList);
+            FileManipulation.writeMany(sortedList, args[1], getApplicationContext());
+
+            return null;
         }
     }
 

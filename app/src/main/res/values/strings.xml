@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Market Snipper</string>
+    <string name="app_name">Market Sniper</string>
 
     <string name="action_settings">Settings</string>
     <string name="scan_button">Scan</string>
@@ -11,6 +11,6 @@
     <string name="title_activity_favourites">FavouritesActivity</string>
     <string name="title_activity_basket">BasketActivity</string>
     <string name="title_activity_prices">Prices</string>
-
+    <string name="drop_down_text">Select market</string>
     <string name="hello_world">Hello world!</string>
 </resources>

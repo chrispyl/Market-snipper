@@ -1,6 +1,7 @@
 package com.example.christos.embeddedscanner;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -10,19 +11,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import de.timroes.android.listview.EnhancedListView;
 
@@ -30,6 +28,7 @@ import de.timroes.android.listview.EnhancedListView;
 public class FavouritesActivity extends ActionBarActivity {
 
     private ArrayList<String> favouriteProducts = new ArrayList<String>();
+    private ArrayList<Boolean> existInBasket = new ArrayList<Boolean>();
     ArrayAdapter<String> adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,13 +36,15 @@ public class FavouritesActivity extends ActionBarActivity {
         setContentView(R.layout.activity_favourites);
 
         FileManipulation.populateListFromFile("favourites.txt", favouriteProducts, getApplicationContext());
+        for(int i=0, j=favouriteProducts.size(); i<j; i++) existInBasket.add(false); //den exei shmasia to false tha allaksei mesa sthn populate listview analoga me thn eikona
         populateListView();
     }
 
+    private de.timroes.android.listview.EnhancedListView list;
     private void populateListView()
     {
         adapter = new MyListAdapter();
-        de.timroes.android.listview.EnhancedListView list = (de.timroes.android.listview.EnhancedListView) findViewById(R.id.favouritesListView);
+        list = (de.timroes.android.listview.EnhancedListView) findViewById(R.id.favouritesListView);
         list.setDismissCallback(new EnhancedListView.OnDismissCallback() {
             @Override
             public EnhancedListView.Undoable onDismiss(EnhancedListView enhancedListView, int i) {
@@ -54,6 +55,32 @@ public class FavouritesActivity extends ActionBarActivity {
                 return null;
             }
         });
+
+        final Context context = this;
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                list.setItemChecked(position, true);
+                if(InternetConnectivity.checkInternet(getApplicationContext())==false)  //check for internet connection
+                {
+                    AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+                    alertDialog.setTitle("Oops");
+                    alertDialog.setMessage("No internet connection"+"\n"+"Cannot connect to database");
+                    alertDialog.setButton(-1, "OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                        }});
+                    alertDialog.show();
+                }
+                else
+                {
+                    Intent newIntent = new Intent(context, PricesActivity.class);
+                    newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(newIntent);
+                }
+            }
+        });
+
+        list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         list.enableSwipeToDismiss();
         list.setAdapter(adapter);
     }
@@ -102,36 +129,49 @@ public class FavouritesActivity extends ActionBarActivity {
                 holder = (ViewHolder) itemView.getTag();
             }
 
-            //find the string
             String currentString = favouriteProducts.get(position);
 
-            //fill the view
+            if(FileManipulation.checkIfIn(FileManipulation.getStringFromPosition("favourites.txt", position, getContext()), "basket.txt", getApplicationContext())==false)
+            {
+                holder.imageButton.setImageResource(R.drawable.basket);
+                existInBasket.set(position, false);
+            }
+            else
+            {
+                holder.imageButton.setImageResource(R.drawable.basket_tick);
+                existInBasket.set(position, true);
+            }
+
             holder.imageButton.setTag(position);
+            final int stringPosition=position;
+            final int viewPosition=position;
             holder.imageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(final View v) {
-                    if(InternetConnectivity.checkInternet(getApplicationContext())==false)  //check for internet connection
+                    String productName = FileManipulation.getStringFromPosition("favourites.txt", stringPosition, getContext());
+                    if(existInBasket.get(viewPosition)==false)
                     {
-                        AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
-                        alertDialog.setTitle("Oops");
-                        alertDialog.setMessage("No internet connection"+"\n"+"Cannot connect to database");
-                        alertDialog.setButton(-1, "OK", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                            }});
-                        alertDialog.show();
+                        if (FileManipulation.checkIfIn(productName, "basket.txt", getApplicationContext()) == false) {
+                            FileManipulation.writeToFile(productName, "basket.txt", getApplicationContext());
+                            ArrayList<String> sortedList = new ArrayList<String>(FileManipulation.getArrayListFromFile("basket.txt", getApplicationContext()));
+                            Collections.sort(sortedList);
+                            FileManipulation.writeMany(sortedList, "basket.txt", getApplicationContext());
+                            Toast.makeText(getBaseContext(), "Saved to basket", Toast.LENGTH_SHORT).show();
+                            adapter.notifyDataSetChanged(); //to notifyAdapterChanged ginetai sto telos autou giati edw prepei na ginetai elegxos afou teliwsei auth h diadikasia gia na mpainei to tick
+                        } else {
+                            Toast.makeText(getBaseContext(), "Product already in basket", Toast.LENGTH_SHORT).show();
+                        }
+                        existInBasket.set(viewPosition, true);
                     }
                     else
                     {
-                        Intent newIntent = new Intent(getContext(), PricesActivity.class);
-                        newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(newIntent);
+                        FileManipulation.deleteByName("basket.txt", productName, getContext());
+                        existInBasket.set(viewPosition, false);
+                        Toast.makeText(getBaseContext(), "Product removed from basket", Toast.LENGTH_SHORT).show();
+                        notifyDataSetChanged();
                     }
-
-                    //communicate with database
                 }
             });
-
-            //make
 
             holder.makeText.setText(currentString);
 

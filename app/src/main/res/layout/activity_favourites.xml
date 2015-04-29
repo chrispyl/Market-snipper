@@ -9,22 +9,11 @@
     tools:context="com.example.christos.embeddedscanner.FavouritesActivity">
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Favourites"
-        android:id="@+id/textView"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
     <de.timroes.android.listview.EnhancedListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/favouritesListView"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/textView"
-
         />
 
 </RelativeLayout>
