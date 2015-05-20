@@ -2,8 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="28dp"
-    android:paddingRight="28dp"
+    android:paddingLeft="18dp"
+    android:paddingRight="18dp"
     android:paddingTop="28dp"
     android:paddingBottom="28dp"
     android:background="@color/white">
@@ -32,6 +32,8 @@
     <EditText
 	android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/nameEditText"
+        android:layout_marginTop="55dp"
         android:inputType="numberDecimal"
         android:id="@+id/priceEditText"
         android:hint="Enter product price"
@@ -43,7 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/priceEditText"
-        android:layout_marginTop="44dp" />
+        android:layout_marginTop="55dp" />
 
     <Button
         android:id="@+id/bttnSubmit"
