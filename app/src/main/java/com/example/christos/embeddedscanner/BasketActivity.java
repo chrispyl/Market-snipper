@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -114,6 +116,16 @@ public class BasketActivity extends ActionBarActivity {
                 {
                     if(basketProducts.size()>0)
                     {
+                        //database code
+                        DatabaseHelper dHelper =new DatabaseHelper(context);
+                        SQLiteDatabase db = dHelper.getWritableDatabase();
+                        String takeAllQuery = "select * from sold group by m_name";
+                        Cursor cursor = db.rawQuery(takeAllQuery, null);
+                        while(cursor.moveToNext())
+                        {
+
+                        }
+
                         Intent newIntent = new Intent(getApplicationContext(), PricesActivity.class);
                         newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(newIntent);

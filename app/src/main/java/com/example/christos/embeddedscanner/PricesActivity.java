@@ -1,5 +1,8 @@
 package com.example.christos.embeddedscanner;
 
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,16 +19,54 @@ import java.util.ArrayList;
 
 public class PricesActivity extends ActionBarActivity {
 
+    private String barcode;
+    private DatabaseHelper dHelper;
+    Cursor cursor;
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        cursor.close();
+    }
+
     private ArrayList<Float> prices=new ArrayList<Float>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_prices);
 
-        prices.add(2.49f);
-        prices.add(2.99f);
-        prices.add(3.99f);
-        prices.add(4.99f);
+        Intent intent= getIntent();
+        Bundle bundle = intent.getExtras();
+        String from = null;
+        if(bundle!=null)
+        {
+            barcode =(String) bundle.get("Barcode");
+            from = (String) bundle.get("From");
+        }
+        if(from.equals("FavouritesActivity"))
+        {
+            dHelper = new DatabaseHelper(this);
+            SQLiteDatabase db = dHelper.getWritableDatabase();
+            String selectMarketsQuery = "select m_name, price from sold where prod_code=" + barcode + " and (m_name='Μαρινόπουλος' or m_name='Μασούτης' or m_name='Lidl' or m_name='Βασιλόπουλος') order by price";
+            cursor = db.rawQuery(selectMarketsQuery, null);
+            while (cursor.moveToNext()) {
+
+            }
+        }
+        else
+        {
+            dHelper = new DatabaseHelper(this);
+            SQLiteDatabase db = dHelper.getWritableDatabase();
+            String selectMarketsQuery = "select m_name, price from sold where prod_code=" + barcode + " and (m_name='Μαρινόπουλος' or m_name='Μασούτης' or m_name='Lidl' or m_name='Βασιλόπουλος') order by price";
+            cursor = db.rawQuery(selectMarketsQuery, null);
+            while (cursor.moveToNext()) {
+                prices.add(cursor.getFloat(1));
+            }
+        }
+        //prices.add(2.49f);
+        //prices.add(2.99f);
+        //prices.add(3.99f);
+        //prices.add(4.99f);
         populateListView();
     }
 
@@ -71,24 +112,24 @@ public class PricesActivity extends ActionBarActivity {
             //find the string
             Float currentPrice = prices.get(position);
 
-            //fill the view
-            if(position==0)
+            if(cursor.isAfterLast()) cursor.moveToFirst();
+            if(cursor.getString(0).equals("Lidl"))
             {
                 holder.imageView.setImageResource(R.drawable.lidl);
             }
-            else if(position==1)
+            else if(cursor.getString(0).equals("Μαρινόπουλος"))
             {
                 holder.imageView.setImageResource(R.drawable.carrefour);
             }
-            else if(position==2)
+            else if(cursor.getString(0).equals("Μασούτης"))
             {
                 holder.imageView.setImageResource(R.drawable.masoutis);
             }
-            else
+            else if(cursor.getString(0).equals("Βασιλόπουλος"))
             {
                 holder.imageView.setImageResource(R.drawable.basilopoulos);
             }
-
+            cursor.moveToNext();
 
             holder.imageView.setTag(position);
 
