@@ -75,6 +75,8 @@ public class FavouritesActivity extends ActionBarActivity {
                 {
                     Intent newIntent = new Intent(context, PricesActivity.class);
                     newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    newIntent.putExtra("From", "FavouritesActivity");
+                    newIntent.putExtra("SelectedItem", favouriteProducts.get(position));
                     startActivity(newIntent);
                 }
             }

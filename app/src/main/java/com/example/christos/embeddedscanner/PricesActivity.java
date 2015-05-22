@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -45,24 +46,33 @@ public class PricesActivity extends ActionBarActivity {
         }
         if(from.equals("FavouritesActivity"))
         {
+            String selectedProduct = (String) bundle.get("SelectedItem");
             dHelper = new DatabaseHelper(this);
             SQLiteDatabase db = dHelper.getWritableDatabase();
-            String selectMarketsQuery = "select m_name, price from sold where prod_code=" + barcode + " and (m_name='Μαρινόπουλος' or m_name='Μασούτης' or m_name='Lidl' or m_name='Βασιλόπουλος') order by price";
+            String selectMarketsQuery = "select m_name, price " +
+                                        "from product, sold " +
+                                        "where code=prod_code and prod_name='"+selectedProduct+
+                                        "' order by price";
             cursor = db.rawQuery(selectMarketsQuery, null);
-            while (cursor.moveToNext()) {
-
+            while (cursor.moveToNext())
+            {
+                prices.add(cursor.getFloat(1));
             }
         }
         else
         {
             dHelper = new DatabaseHelper(this);
             SQLiteDatabase db = dHelper.getWritableDatabase();
-            String selectMarketsQuery = "select m_name, price from sold where prod_code=" + barcode + " and (m_name='Μαρινόπουλος' or m_name='Μασούτης' or m_name='Lidl' or m_name='Βασιλόπουλος') order by price";
+            String selectMarketsQuery = "select m_name, price " +
+                                        "from sold " +
+                                        "where prod_code=" + barcode + " and (m_name='Μαρινόπουλος' or m_name='Μασούτης' or m_name='Lidl' or m_name='Βασιλόπουλος')" +
+                                        " order by price";
             cursor = db.rawQuery(selectMarketsQuery, null);
             while (cursor.moveToNext()) {
                 prices.add(cursor.getFloat(1));
             }
         }
+        //
         //prices.add(2.49f);
         //prices.add(2.99f);
         //prices.add(3.99f);
