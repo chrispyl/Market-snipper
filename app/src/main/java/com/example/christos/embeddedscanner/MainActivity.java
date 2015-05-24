@@ -147,19 +147,8 @@ public class MainActivity extends ActionBarActivity {
 
         bttnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                if(InternetConnectivity.checkInternet(getApplicationContext())==false)  //check for internet connection
-                {
-                    AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-                    alertDialog.setTitle("Oops");
-                    alertDialog.setMessage("No internet connection"+"\n"+"Cannot connect to database");
-                    alertDialog.setButton(-1, "OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                        }});
-                    alertDialog.show();
-                }
-                else
-                {
+            public void onClick(View v)
+            {
                     boolean dotInSide=false;
                     String priceString=priceEditText.getText().toString();
                     if(priceString.length()>0)
@@ -200,7 +189,6 @@ public class MainActivity extends ActionBarActivity {
                         Toast.makeText(getBaseContext(), "Insert price", Toast.LENGTH_SHORT).show();
                     }
                 }
-            }
         });
        }
 

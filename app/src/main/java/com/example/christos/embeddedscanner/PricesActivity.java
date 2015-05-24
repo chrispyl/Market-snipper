@@ -22,7 +22,9 @@ public class PricesActivity extends ActionBarActivity {
 
     private String barcode;
     private DatabaseHelper dHelper;
+    private ArrayList<String> markets;
     Cursor cursor;
+    String from = null;
 
     @Override
     protected void onDestroy() {
@@ -38,7 +40,6 @@ public class PricesActivity extends ActionBarActivity {
 
         Intent intent= getIntent();
         Bundle bundle = intent.getExtras();
-        String from = null;
         if(bundle!=null)
         {
             barcode =(String) bundle.get("Barcode");
@@ -59,7 +60,7 @@ public class PricesActivity extends ActionBarActivity {
                 prices.add(cursor.getFloat(1));
             }
         }
-        else
+        else if(from.equals("MainActivity"))
         {
             dHelper = new DatabaseHelper(this);
             SQLiteDatabase db = dHelper.getWritableDatabase();
@@ -70,6 +71,57 @@ public class PricesActivity extends ActionBarActivity {
             cursor = db.rawQuery(selectMarketsQuery, null);
             while (cursor.moveToNext()) {
                 prices.add(cursor.getFloat(1));
+            }
+        }
+        else
+        {
+            ArrayList<Float> pricesSum = new ArrayList<Float>();
+            markets = new ArrayList<String>();
+            markets.add("Lidl");
+            markets.add("Μασούτης");
+            markets.add("Μαρινόπουλος");
+            markets.add("Βασιλόπουλος");
+            for(int i=0; i<4; i++) pricesSum.add(0f); //to 4 apo ta tessera market
+
+            dHelper = new DatabaseHelper(this);
+            SQLiteDatabase db = dHelper.getWritableDatabase();
+            String selectMarketsQuery = "select m_name, price, prod_name " +
+                                        "from product, sold " +
+                                        "where prod_code=code " +
+                                        "group by m_name";
+            cursor = db.rawQuery(selectMarketsQuery, null);
+            while (cursor.moveToNext()) {
+                if(cursor.getString(0).equals("Lidl"))
+                {
+                    pricesSum.set(0, pricesSum.get(0)+cursor.getFloat(1));
+                }
+                else if(cursor.getString(0).equals("Μασούτης"))
+                {
+                    pricesSum.set(1, pricesSum.get(1)+cursor.getFloat(1));
+                }
+                else if(cursor.getString(0).equals("Μαρινόπουλος"))
+                {
+                    pricesSum.set(2, pricesSum.get(2)+cursor.getFloat(1));
+                }
+                else if(cursor.getString(0).equals("Βασιλόπουλος"))
+                {
+                    pricesSum.set(3, pricesSum.get(3)+cursor.getFloat(1));
+                }
+            }
+
+            for(int i=pricesSum.size()-1; i>=0; i--)
+            {
+                if(pricesSum.get(i)==0f)
+                {
+                    pricesSum.remove(i);
+                    markets.remove(i);
+                }
+            }
+
+            OptimizedBubblesort.sortPricesAndMarkets(pricesSum, markets);
+            for(int i=0; i<pricesSum.size(); i++)
+            {
+                prices.add(pricesSum.get(i));
             }
         }
         //
@@ -122,24 +174,39 @@ public class PricesActivity extends ActionBarActivity {
             //find the string
             Float currentPrice = prices.get(position);
 
-            if(cursor.isAfterLast()) cursor.moveToFirst();
-            if(cursor.getString(0).equals("Lidl"))
+            if(from.equals("BasketActivity"))
             {
-                holder.imageView.setImageResource(R.drawable.lidl);
+                if(markets.get(position).equals("Lidl"))
+                {
+                    holder.imageView.setImageResource(R.drawable.lidl);
+                }
+                else if(markets.get(position).equals("Μαρινόπουλος"))
+                {
+                    holder.imageView.setImageResource(R.drawable.carrefour);
+                }
+                else if(markets.get(position).equals("Μασούτης"))
+                {
+                    holder.imageView.setImageResource(R.drawable.masoutis);
+                }
+                else if(markets.get(position).equals("Βασιλόπουλος"))
+                {
+                    holder.imageView.setImageResource(R.drawable.basilopoulos);
+                }
             }
-            else if(cursor.getString(0).equals("Μαρινόπουλος"))
+            else
             {
-                holder.imageView.setImageResource(R.drawable.carrefour);
+                if (cursor.isAfterLast()) cursor.moveToFirst();
+                if (cursor.getString(0).equals("Lidl")) {
+                    holder.imageView.setImageResource(R.drawable.lidl);
+                } else if (cursor.getString(0).equals("Μαρινόπουλος")) {
+                    holder.imageView.setImageResource(R.drawable.carrefour);
+                } else if (cursor.getString(0).equals("Μασούτης")) {
+                    holder.imageView.setImageResource(R.drawable.masoutis);
+                } else if (cursor.getString(0).equals("Βασιλόπουλος")) {
+                    holder.imageView.setImageResource(R.drawable.basilopoulos);
+                }
+                cursor.moveToNext();
             }
-            else if(cursor.getString(0).equals("Μασούτης"))
-            {
-                holder.imageView.setImageResource(R.drawable.masoutis);
-            }
-            else if(cursor.getString(0).equals("Βασιλόπουλος"))
-            {
-                holder.imageView.setImageResource(R.drawable.basilopoulos);
-            }
-            cursor.moveToNext();
 
             holder.imageView.setTag(position);
 
