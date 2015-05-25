@@ -1,20 +1,25 @@
 package com.example.christos.embeddedscanner;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -23,6 +28,9 @@ public class PricesActivity extends ActionBarActivity {
     private String barcode;
     private DatabaseHelper dHelper;
     private ArrayList<String> markets;
+    private ArrayList<String> productsInBasket;
+    private ArrayList<ArrayList<String>> missingProducts;
+    private ArrayList<ArrayList<String>> prodEachMarket;
     Cursor cursor;
     String from = null;
 
@@ -73,45 +81,82 @@ public class PricesActivity extends ActionBarActivity {
                 prices.add(cursor.getFloat(1));
             }
         }
-        else
+        else if(from.equals("BasketActivity"))
         {
+            missingProducts = new ArrayList<ArrayList<String>>(); //0 lidl, 1 masoutis, 2 marin, 3 basil
+            prodEachMarket = new ArrayList<ArrayList<String>>();
+            productsInBasket = FileManipulation.getArrayListFromFile("basket.txt", getApplicationContext());
+
             ArrayList<Float> pricesSum = new ArrayList<Float>();
+
+            for(int i=0; i<4; i++)
+            {
+                missingProducts.add(new ArrayList<String>());
+                prodEachMarket.add(new ArrayList<String>());
+                pricesSum.add(0f);
+            }
+
             markets = new ArrayList<String>();
             markets.add("Lidl");
             markets.add("Μασούτης");
             markets.add("Μαρινόπουλος");
             markets.add("Βασιλόπουλος");
-            for(int i=0; i<4; i++) pricesSum.add(0f); //to 4 apo ta tessera market
 
             dHelper = new DatabaseHelper(this);
             SQLiteDatabase db = dHelper.getWritableDatabase();
             String selectMarketsQuery = "select m_name, price, prod_name " +
                                         "from product, sold " +
-                                        "where prod_code=code " +
-                                        "group by m_name";
+                                        "where prod_code=code ";
             cursor = db.rawQuery(selectMarketsQuery, null);
             while (cursor.moveToNext()) {
                 if(cursor.getString(0).equals("Lidl"))
                 {
-                    pricesSum.set(0, pricesSum.get(0)+cursor.getFloat(1));
+                    if(productsInBasket.contains(cursor.getString(2)))
+                    {
+                        pricesSum.set(0, pricesSum.get(0)+cursor.getFloat(1));
+                        prodEachMarket.get(0).add(cursor.getString(2));
+                    }
                 }
                 else if(cursor.getString(0).equals("Μασούτης"))
                 {
-                    pricesSum.set(1, pricesSum.get(1)+cursor.getFloat(1));
+                    if(productsInBasket.contains(cursor.getString(2)))
+                    {
+                        pricesSum.set(1, pricesSum.get(1)+cursor.getFloat(1));
+                        prodEachMarket.get(1).add(cursor.getString(2));
+                    }
                 }
                 else if(cursor.getString(0).equals("Μαρινόπουλος"))
                 {
-                    pricesSum.set(2, pricesSum.get(2)+cursor.getFloat(1));
+                    if(productsInBasket.contains(cursor.getString(2)))
+                    {
+                        pricesSum.set(2, pricesSum.get(2)+cursor.getFloat(1));
+                        prodEachMarket.get(2).add(cursor.getString(2));
+                    }
                 }
                 else if(cursor.getString(0).equals("Βασιλόπουλος"))
                 {
-                    pricesSum.set(3, pricesSum.get(3)+cursor.getFloat(1));
+                    if(productsInBasket.contains(cursor.getString(2)))
+                    {
+                        pricesSum.set(3, pricesSum.get(3) + cursor.getFloat(1));
+                        prodEachMarket.get(3).add(cursor.getString(2));
+                    }
+                }
+            }
+
+            for(int i=0; i<4; i++)
+            {
+                for(int j=0; j<productsInBasket.size(); j++)
+                {
+                    if(!prodEachMarket.get(i).contains(productsInBasket.get(j)))
+                    {
+                        missingProducts.get(i).add(productsInBasket.get(j));
+                    }
                 }
             }
 
             for(int i=pricesSum.size()-1; i>=0; i--)
             {
-                if(pricesSum.get(i)==0f)
+                if(pricesSum.get(i)==0)
                 {
                     pricesSum.remove(i);
                     markets.remove(i);
@@ -123,6 +168,7 @@ public class PricesActivity extends ActionBarActivity {
             {
                 prices.add(pricesSum.get(i));
             }
+
         }
         //
         //prices.add(2.49f);
@@ -132,11 +178,46 @@ public class PricesActivity extends ActionBarActivity {
         populateListView();
     }
 
+    ListView list;
     private void populateListView()
     {
+        list = (ListView) findViewById(R.id.pricesListView);
         ArrayAdapter<Float> adapter = new MyListAdapter();
-        ListView list = (ListView) findViewById(R.id.pricesListView);
         list.setAdapter(adapter);
+        if(from.equals("BasketActivity"))
+        {
+            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    list.setItemChecked(position, true);
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(PricesActivity.this);
+                    LayoutInflater inflater = getLayoutInflater();
+                    View convertView = (View) inflater.inflate(R.layout.custom, null);
+                    alertDialog.setView(convertView);
+                    alertDialog.setTitle("Products missing");
+                    ListView lv = (ListView) convertView.findViewById(R.id.missingProdListView);
+                    ArrayAdapter<String> adapter=null;
+                    if(markets.get(position).equals("Lidl"))
+                    {
+                        adapter = new ArrayAdapter<String>(PricesActivity.this, android.R.layout.simple_list_item_1, missingProducts.get(0));
+                    }
+                    else if(markets.get(position).equals("Μασούτης"))
+                    {
+                        adapter = new ArrayAdapter<String>(PricesActivity.this, android.R.layout.simple_list_item_1, missingProducts.get(1));
+                    }
+                    else if(markets.get(position).equals("Μαρινόπουλος"))
+                    {
+                        adapter = new ArrayAdapter<String>(PricesActivity.this, android.R.layout.simple_list_item_1, missingProducts.get(2));
+                    }
+                    else if(markets.get(position).equals("Βασιλόπουλος"))
+                    {
+                        adapter = new ArrayAdapter<String>(PricesActivity.this, android.R.layout.simple_list_item_1, missingProducts.get(3));
+                    }
+                    lv.setAdapter(adapter);
+                    alertDialog.show();
+                }
+            });
+        }
     }
 
     private static class ViewHolder
@@ -179,18 +260,22 @@ public class PricesActivity extends ActionBarActivity {
                 if(markets.get(position).equals("Lidl"))
                 {
                     holder.imageView.setImageResource(R.drawable.lidl);
-                }
-                else if(markets.get(position).equals("Μαρινόπουλος"))
-                {
-                    holder.imageView.setImageResource(R.drawable.carrefour);
+                    if(missingProducts.get(0).size()>0) itemView.setBackgroundColor(Color.rgb(255, 115, 115));
                 }
                 else if(markets.get(position).equals("Μασούτης"))
                 {
                     holder.imageView.setImageResource(R.drawable.masoutis);
+                    if(missingProducts.get(1).size()>0) itemView.setBackgroundColor(Color.rgb(255, 115, 115));
+                }
+                else if(markets.get(position).equals("Μαρινόπουλος"))
+                {
+                    holder.imageView.setImageResource(R.drawable.carrefour);
+                    if(missingProducts.get(2).size()>0) itemView.setBackgroundColor(Color.rgb(255, 115, 115));
                 }
                 else if(markets.get(position).equals("Βασιλόπουλος"))
                 {
                     holder.imageView.setImageResource(R.drawable.basilopoulos);
+                    if(missingProducts.get(3).size()>0) itemView.setBackgroundColor(Color.rgb(255, 115, 115));
                 }
             }
             else
@@ -198,10 +283,10 @@ public class PricesActivity extends ActionBarActivity {
                 if (cursor.isAfterLast()) cursor.moveToFirst();
                 if (cursor.getString(0).equals("Lidl")) {
                     holder.imageView.setImageResource(R.drawable.lidl);
-                } else if (cursor.getString(0).equals("Μαρινόπουλος")) {
-                    holder.imageView.setImageResource(R.drawable.carrefour);
                 } else if (cursor.getString(0).equals("Μασούτης")) {
                     holder.imageView.setImageResource(R.drawable.masoutis);
+                } else if (cursor.getString(0).equals("Μαρινόπουλος")) {
+                    holder.imageView.setImageResource(R.drawable.carrefour);
                 } else if (cursor.getString(0).equals("Βασιλόπουλος")) {
                     holder.imageView.setImageResource(R.drawable.basilopoulos);
                 }
