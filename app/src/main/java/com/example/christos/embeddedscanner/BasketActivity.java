@@ -102,32 +102,11 @@ public class BasketActivity extends ActionBarActivity {
                     thumbs.set(i, false);
                     adapter.notifyDataSetChanged();
                 }*/
-                if(InternetConnectivity.checkInternet(getApplicationContext())==false)  //check for internet connection
-                {
-                    AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-                    alertDialog.setTitle("Oops");
-                    alertDialog.setMessage("No internet connection"+"\n"+"Cannot connect to database");
-                    alertDialog.setButton(-1, "OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                        }});
-                    alertDialog.show();
-                }
-                else
-                {
                     if(basketProducts.size()>0)
                     {
-                        //database code
-                        DatabaseHelper dHelper =new DatabaseHelper(context);
-                        SQLiteDatabase db = dHelper.getWritableDatabase();
-                        String takeAllQuery = "select * from sold group by m_name";
-                        Cursor cursor = db.rawQuery(takeAllQuery, null);
-                        while(cursor.moveToNext())
-                        {
-
-                        }
-
                         Intent newIntent = new Intent(getApplicationContext(), PricesActivity.class);
                         newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        newIntent.putExtra("From", "BasketActivity");
                         startActivity(newIntent);
                     }
                     else
@@ -135,7 +114,6 @@ public class BasketActivity extends ActionBarActivity {
                         Toast.makeText(getBaseContext(), "Basket is empty", Toast.LENGTH_SHORT).show();
                     }
                 }
-            }
         });
 
 

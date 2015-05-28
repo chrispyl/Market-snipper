@@ -81,13 +81,7 @@ public class MainActivity extends ActionBarActivity {
         }
         else
         {
-            AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-            alertDialog.setTitle("Unknown");
-            alertDialog.setMessage("New product");
-            alertDialog.setButton(-1, "OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                }});
-            alertDialog.show();
+            Toast.makeText(getBaseContext(), "New product found", Toast.LENGTH_SHORT).show();
         }
 
         spinner = (Spinner) findViewById(R.id.spinner);
@@ -148,57 +142,46 @@ public class MainActivity extends ActionBarActivity {
         bttnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(InternetConnectivity.checkInternet(getApplicationContext())==false)  //check for internet connection
+                boolean dotInSide = false;
+                String priceString = priceEditText.getText().toString();
+                if (nameEditText.getText().toString().trim().length() > 0)
                 {
-                    AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-                    alertDialog.setTitle("Oops");
-                    alertDialog.setMessage("No internet connection"+"\n"+"Cannot connect to database");
-                    alertDialog.setButton(-1, "OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                        }});
-                    alertDialog.show();
-                }
-                else
-                {
-                    boolean dotInSide=false;
-                    String priceString=priceEditText.getText().toString();
-                    if(priceString.length()>0)
-                    {
+                    if (priceString.length() > 0) {
                         if (priceString.charAt(0) == '.' || priceString.charAt(priceString.length() - 1) == '.') {
                             dotInSide = true;
                         }
 
                         if (dotInSide == true) {
                             Toast.makeText(getBaseContext(), "Wrong number format", Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
-                            if(barcodeExist==false)
-                            {
-                                insertNewProduct();
-                            }
+                        } else {
+                            if (spinner != null && spinner.getSelectedItem() != null) {
+                                if (barcodeExist == false) {
+                                    insertNewProduct();
+                                }
 
-                            if(checkIfProductInMarket())
-                            {
-                                updateDB();
-                            }
-                            else
-                            {
-                                insertPriceToDB();
-                            }
+                                if (checkIfProductInMarket()) {
+                                    updateDB();
+                                } else {
+                                    insertPriceToDB();
+                                }
 
-                            Intent newIntent = new Intent(getApplicationContext(), PricesActivity.class);
-                            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            newIntent.putExtra("Barcode", barcode);
-                            newIntent.putExtra("From", "MainActivity");
-                            startActivity(newIntent);
-                            finish();
+                                Intent newIntent = new Intent(getApplicationContext(), PricesActivity.class);
+                                newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                newIntent.putExtra("Barcode", barcode);
+                                newIntent.putExtra("From", "MainActivity");
+                                startActivity(newIntent);
+                                finish();
+                            } else {
+                                Toast.makeText(getBaseContext(), "Select market", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
-                    else
-                    {
+                    } else {
                         Toast.makeText(getBaseContext(), "Insert price", Toast.LENGTH_SHORT).show();
                     }
+                }
+                else
+                {
+                    Toast.makeText(getBaseContext(), "Insert name", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -254,6 +237,7 @@ public class MainActivity extends ActionBarActivity {
         contentValues.put("price", Float.parseFloat(priceEditText.getText().toString().trim()));
         String[] args = new String[]{barcode, spinner.getSelectedItem().toString().trim()};
         db.update("sold", contentValues, "prod_code =? and m_name =?", args);
+
         //String updatePriceQuery="update sold set price="+priceEditText.getText().toString().trim()+" where prod_code="+barcode+" and m_name="+nameEditText.getText().toString().trim();
         //db.execSQL(updatePriceQuery);
     }
