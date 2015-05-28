@@ -197,24 +197,29 @@ public class PricesActivity extends ActionBarActivity {
                     alertDialog.setTitle("Products missing");
                     ListView lv = (ListView) convertView.findViewById(R.id.missingProdListView);
                     ArrayAdapter<String> adapter=null;
+                    boolean show=false;
                     if(markets.get(position).equals("Lidl"))
                     {
                         adapter = new ArrayAdapter<String>(PricesActivity.this, android.R.layout.simple_list_item_1, missingProducts.get(0));
+                        if(missingProducts.get(0).size()>0) show=true;
                     }
                     else if(markets.get(position).equals("Μασούτης"))
                     {
                         adapter = new ArrayAdapter<String>(PricesActivity.this, android.R.layout.simple_list_item_1, missingProducts.get(1));
+                        if(missingProducts.get(1).size()>0) show=true;
                     }
                     else if(markets.get(position).equals("Μαρινόπουλος"))
                     {
                         adapter = new ArrayAdapter<String>(PricesActivity.this, android.R.layout.simple_list_item_1, missingProducts.get(2));
+                        if(missingProducts.get(2).size()>0) show=true;
                     }
                     else if(markets.get(position).equals("Βασιλόπουλος"))
                     {
                         adapter = new ArrayAdapter<String>(PricesActivity.this, android.R.layout.simple_list_item_1, missingProducts.get(3));
+                        if(missingProducts.get(3).size()>0) show=true;
                     }
                     lv.setAdapter(adapter);
-                    alertDialog.show();
+                    if(show) alertDialog.show();
                 }
             });
         }
