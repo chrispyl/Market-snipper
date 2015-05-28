@@ -29,6 +29,7 @@
             android:gravity="center"
             android:editable="false"/>
 
+<<<<<<< HEAD
         <EditText
             android:id="@+id/nameEditText"
             android:layout_width="match_parent"
@@ -58,6 +59,7 @@
             android:layout_marginTop="40dp" />
 
     </RelativeLayout>
+
 
     <Button
         android:id="@+id/bttnSubmit"

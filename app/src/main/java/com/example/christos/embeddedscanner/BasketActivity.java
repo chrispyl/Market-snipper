@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -100,22 +102,11 @@ public class BasketActivity extends ActionBarActivity {
                     thumbs.set(i, false);
                     adapter.notifyDataSetChanged();
                 }*/
-                if(InternetConnectivity.checkInternet(getApplicationContext())==false)  //check for internet connection
-                {
-                    AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-                    alertDialog.setTitle("Oops");
-                    alertDialog.setMessage("No internet connection"+"\n"+"Cannot connect to database");
-                    alertDialog.setButton(-1, "OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                        }});
-                    alertDialog.show();
-                }
-                else
-                {
                     if(basketProducts.size()>0)
                     {
                         Intent newIntent = new Intent(getApplicationContext(), PricesActivity.class);
                         newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        newIntent.putExtra("From", "BasketActivity");
                         startActivity(newIntent);
                     }
                     else
@@ -123,7 +114,6 @@ public class BasketActivity extends ActionBarActivity {
                         Toast.makeText(getBaseContext(), "Basket is empty", Toast.LENGTH_SHORT).show();
                     }
                 }
-            }
         });
 
 

@@ -59,24 +59,14 @@ public class FavouritesActivity extends ActionBarActivity {
         final Context context = this;
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                list.setItemChecked(position, true);
-                if(InternetConnectivity.checkInternet(getApplicationContext())==false)  //check for internet connection
-                {
-                    AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-                    alertDialog.setTitle("Oops");
-                    alertDialog.setMessage("No internet connection"+"\n"+"Cannot connect to database");
-                    alertDialog.setButton(-1, "OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                        }});
-                    alertDialog.show();
-                }
-                else
-                {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                    list.setItemChecked(position, true);
                     Intent newIntent = new Intent(context, PricesActivity.class);
                     newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    newIntent.putExtra("From", "FavouritesActivity");
+                    newIntent.putExtra("SelectedItem", favouriteProducts.get(position));
                     startActivity(newIntent);
-                }
             }
         });
 
