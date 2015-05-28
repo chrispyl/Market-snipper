@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -20,18 +21,18 @@ import com.google.zxing.integration.android.IntentResult;
 
 public class MainMenuActivity extends ActionBarActivity {
 
-    private Button scanButton;
-    private Button favouritesButton;
-    private Button basketButton;
+    private ImageButton scanButton;
+    private ImageButton favouritesButton;
+    private ImageButton basketButton;
     IntentIntegrator integrator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
-        scanButton = (Button) findViewById(R.id.bttnScan);
-        favouritesButton = (Button) findViewById(R.id.bttnFavourites);
-        basketButton = (Button) findViewById(R.id.bttnBasket);
+        scanButton = (ImageButton) findViewById(R.id.bttnScan);
+        favouritesButton = (ImageButton) findViewById(R.id.bttnFavourites);
+        basketButton = (ImageButton) findViewById(R.id.bttnBasket);
         integrator = new IntentIntegrator(this);
 
         scanButton.setOnClickListener(new View.OnClickListener() {

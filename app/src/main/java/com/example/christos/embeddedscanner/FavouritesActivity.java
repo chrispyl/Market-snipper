@@ -59,24 +59,14 @@ public class FavouritesActivity extends ActionBarActivity {
         final Context context = this;
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                list.setItemChecked(position, true);
-                if(InternetConnectivity.checkInternet(getApplicationContext())==false)  //check for internet connection
-                {
-                    AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-                    alertDialog.setTitle("Oops");
-                    alertDialog.setMessage("No internet connection"+"\n"+"Cannot connect to database");
-                    alertDialog.setButton(-1, "OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                        }});
-                    alertDialog.show();
-                }
-                else
-                {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                    list.setItemChecked(position, true);
                     Intent newIntent = new Intent(context, PricesActivity.class);
                     newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    newIntent.putExtra("From", "FavouritesActivity");
+                    newIntent.putExtra("SelectedItem", favouriteProducts.get(position));
                     startActivity(newIntent);
-                }
             }
         });
 
@@ -133,12 +123,12 @@ public class FavouritesActivity extends ActionBarActivity {
 
             if(FileManipulation.checkIfIn(FileManipulation.getStringFromPosition("favourites.txt", position, getContext()), "basket.txt", getApplicationContext())==false)
             {
-                holder.imageButton.setImageResource(R.drawable.basket);
+                holder.imageButton.setImageResource(R.drawable.bigbigbasketnotik);
                 existInBasket.set(position, false);
             }
             else
             {
-                holder.imageButton.setImageResource(R.drawable.basket_tick);
+                holder.imageButton.setImageResource(R.drawable.bigbigbasketik);
                 existInBasket.set(position, true);
             }
 
@@ -167,7 +157,7 @@ public class FavouritesActivity extends ActionBarActivity {
                     {
                         FileManipulation.deleteByName("basket.txt", productName, getContext());
                         existInBasket.set(viewPosition, false);
-                        Toast.makeText(getBaseContext(), "Product removed from basket", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "Removed from basket", Toast.LENGTH_SHORT).show();
                         notifyDataSetChanged();
                     }
                 }
