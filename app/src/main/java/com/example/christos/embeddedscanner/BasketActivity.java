@@ -32,7 +32,7 @@ public class BasketActivity extends ActionBarActivity {
     //private ArrayList<Boolean> thumbs = new ArrayList<Boolean>();
     ArrayAdapter<String> adapter;
     Button bttnBestPrice;
-    Button bttnDelete;
+    ImageButton bttnDelete;
     CheckBox chSelectAll;
 
     @Override
@@ -40,7 +40,7 @@ public class BasketActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_basket);
         bttnBestPrice = (Button) findViewById(R.id.bestPriceButton);
-        bttnDelete = (Button) findViewById(R.id.deleteButton);
+        bttnDelete = (ImageButton) findViewById(R.id.deleteButton);
         chSelectAll = (CheckBox) findViewById(R.id.selectAllCheckBox);
 
         bttnDelete.setOnClickListener(new View.OnClickListener() {

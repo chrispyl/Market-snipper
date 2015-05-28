@@ -133,12 +133,12 @@ public class FavouritesActivity extends ActionBarActivity {
 
             if(FileManipulation.checkIfIn(FileManipulation.getStringFromPosition("favourites.txt", position, getContext()), "basket.txt", getApplicationContext())==false)
             {
-                holder.imageButton.setImageResource(R.drawable.basket);
+                holder.imageButton.setImageResource(R.drawable.bigbigbasketnotik);
                 existInBasket.set(position, false);
             }
             else
             {
-                holder.imageButton.setImageResource(R.drawable.basket_tick);
+                holder.imageButton.setImageResource(R.drawable.bigbigbasketik);
                 existInBasket.set(position, true);
             }
 
@@ -167,7 +167,7 @@ public class FavouritesActivity extends ActionBarActivity {
                     {
                         FileManipulation.deleteByName("basket.txt", productName, getContext());
                         existInBasket.set(viewPosition, false);
-                        Toast.makeText(getBaseContext(), "Product removed from basket", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "Removed from basket", Toast.LENGTH_SHORT).show();
                         notifyDataSetChanged();
                     }
                 }
