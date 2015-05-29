@@ -74,7 +74,7 @@ public class PricesActivity extends ActionBarActivity {
             SQLiteDatabase db = dHelper.getWritableDatabase();
             String selectMarketsQuery = "select m_name, price " +
                                         "from sold " +
-                                        "where prod_code=" + barcode + " and (m_name='Μαρινόπουλος' or m_name='Μασούτης' or m_name='Lidl' or m_name='Βασιλόπουλος')" +
+                                        "where prod_code=" + barcode + " and (m_name='Μαρινόπουλος' or m_name='Μασούτης' or m_name='Lidl' or m_name='Βασιλόπουλος' or m_name='Κυλικείο')" +
                                         " order by price";
             cursor = db.rawQuery(selectMarketsQuery, null);
             while (cursor.moveToNext()) {
@@ -83,13 +83,13 @@ public class PricesActivity extends ActionBarActivity {
         }
         else if(from.equals("BasketActivity"))
         {
-            missingProducts = new ArrayList<ArrayList<String>>(); //0 lidl, 1 masoutis, 2 marin, 3 basil
+            missingProducts = new ArrayList<ArrayList<String>>(); //0 lidl, 1 masoutis, 2 marin, 3 basil, 4 κυλικειο
             prodEachMarket = new ArrayList<ArrayList<String>>();
             productsInBasket = FileManipulation.getArrayListFromFile("basket.txt", getApplicationContext());
 
             ArrayList<Float> pricesSum = new ArrayList<Float>();
 
-            for(int i=0; i<4; i++)
+            for(int i=0; i<5; i++)
             {
                 missingProducts.add(new ArrayList<String>());
                 prodEachMarket.add(new ArrayList<String>());
@@ -101,6 +101,7 @@ public class PricesActivity extends ActionBarActivity {
             markets.add("Μασούτης");
             markets.add("Μαρινόπουλος");
             markets.add("Βασιλόπουλος");
+            markets.add("Κυλικείο");
 
             dHelper = new DatabaseHelper(this);
             SQLiteDatabase db = dHelper.getWritableDatabase();
@@ -141,9 +142,17 @@ public class PricesActivity extends ActionBarActivity {
                         prodEachMarket.get(3).add(cursor.getString(2));
                     }
                 }
+                else if(cursor.getString(0).equals("Κυλικείο"))
+                {
+                    if(productsInBasket.contains(cursor.getString(2)))
+                    {
+                        pricesSum.set(4, pricesSum.get(4) + cursor.getFloat(1));
+                        prodEachMarket.get(4).add(cursor.getString(2));
+                    }
+                }
             }
 
-            for(int i=0; i<4; i++)
+            for(int i=0; i<5; i++)
             {
                 for(int j=0; j<productsInBasket.size(); j++)
                 {
@@ -218,6 +227,11 @@ public class PricesActivity extends ActionBarActivity {
                         adapter = new ArrayAdapter<String>(PricesActivity.this, android.R.layout.simple_list_item_1, missingProducts.get(3));
                         if(missingProducts.get(3).size()>0) show=true;
                     }
+                    else if(markets.get(position).equals("Κυλικείο"))
+                    {
+                        adapter = new ArrayAdapter<String>(PricesActivity.this, android.R.layout.simple_list_item_1, missingProducts.get(4));
+                        if(missingProducts.get(4).size()>0) show=true;
+                    }
                     lv.setAdapter(adapter);
                     if(show) alertDialog.show();
                 }
@@ -282,6 +296,12 @@ public class PricesActivity extends ActionBarActivity {
                     holder.imageView.setImageResource(R.drawable.basilopoulos);
                     if(missingProducts.get(3).size()>0) itemView.setBackgroundColor(Color.rgb(255, 115, 115));
                 }
+                else if(markets.get(position).equals("Κυλικείο"))
+                {
+                    holder.imageView.setImageResource(R.drawable.kulikeio);
+                    if(missingProducts.get(4).size()>0) itemView.setBackgroundColor(Color.rgb(255, 115, 115));
+                }
+
             }
             else
             {
@@ -294,6 +314,8 @@ public class PricesActivity extends ActionBarActivity {
                     holder.imageView.setImageResource(R.drawable.carrefour);
                 } else if (cursor.getString(0).equals("Βασιλόπουλος")) {
                     holder.imageView.setImageResource(R.drawable.basilopoulos);
+                } else if (cursor.getString(0).equals("Κυλικείο")) {
+                    holder.imageView.setImageResource(R.drawable.kulikeio);
                 }
                 cursor.moveToNext();
             }

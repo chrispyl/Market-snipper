@@ -29,7 +29,6 @@
             android:gravity="center"
             android:editable="false"/>
 
-<<<<<<< HEAD
         <EditText
             android:id="@+id/nameEditText"
             android:layout_width="match_parent"
@@ -56,7 +55,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/priceEditText"
-            android:layout_marginTop="40dp" />
+            android:layout_marginTop="40dp"
+            android:spinnerMode="dialog"/>
 
     </RelativeLayout>
 
