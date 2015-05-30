@@ -96,6 +96,28 @@ public class MainActivity extends ActionBarActivity {
                         // R.layout.contact_spinner_nothing_selected_dropdown, // Optional
                         this));
 
+        String whereIAm=findMe(); //use gps to find position and associate with market
+        if(whereIAm.equals("Lidl"))
+        {
+            spinner.setSelection(3);
+        }
+        else if(whereIAm.equals("Basilopoulos"))
+        {
+            spinner.setSelection(4);
+        }
+        else if(whereIAm.equals("Marinopoulos"))
+        {
+            spinner.setSelection(1);
+        }
+        else if(whereIAm.equals("Masoutis"))
+        {
+            spinner.setSelection(2);
+        }
+        else if(whereIAm.equals("Kulikeio"))
+        {
+            spinner.setSelection(5);
+        }
+
         bttnAddToFavourites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -186,6 +208,71 @@ public class MainActivity extends ActionBarActivity {
             }
         });
        }
+
+    public String findMe()
+    {
+        String market=null;
+        GPSTracker gps = new GPSTracker(MainActivity.this);
+        if(gps.canGetLocation())
+        {
+            double latitude = gps.getLatitude();
+            double longitude = gps.getLongitude();
+            if(longitude != 0.0 && latitude != 0.0)
+            {
+                double distanceFromLidl = Haversine.calcHaversine(latitude, longitude, 41.13140, 24.89514);
+                double distanceFromMasoutis = Haversine.calcHaversine(latitude, longitude, 41.13518, 24.89041);
+                double distanceFromMarinopoulos = Haversine.calcHaversine(latitude, longitude, 41.13891, 24.89195);
+                double distanceFromBasilopoulos = Haversine.calcHaversine(latitude, longitude, 41.12591, 24.88494);
+                double distanceFromKulikeio = Haversine.calcHaversine(latitude, longitude, 41.13993, 24.91385);
+
+                if(distanceFromBasilopoulos<0.1)
+                {
+                    market="Basilopoulos";
+                }
+                else if(distanceFromLidl<0.1)
+                {
+                    market="Lidl";
+                }
+                else if(distanceFromMarinopoulos<0.1)
+                {
+                    market="Marinopoulos";
+                }
+                else if(distanceFromMasoutis<0.1)
+                {
+                    market="Masoutis";
+                }
+                else if(distanceFromKulikeio<0.1)
+                {
+                    market="Kulikeio";
+                }
+                else
+                {
+                    market="none";
+                }
+                /*
+                AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+                alertDialog.setTitle("Dist lidl");
+                alertDialog.setMessage("Lidl " + distanceFromLidl + "\nMas " + distanceFromMasoutis +"\nMarin "+distanceFromMarinopoulos+"\nBas "+distanceFromBasilopoulos);
+                alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+                alertDialog.show();
+                */
+            }
+            else
+            {
+                market="none";
+            }
+        }
+        else
+        {
+            market="none";
+        }
+
+        return market;
+    }
 
     public boolean checkIfProductInMarket()
     {

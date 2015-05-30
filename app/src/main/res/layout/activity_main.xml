@@ -2,89 +2,94 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="18dp"
-    android:paddingRight="18dp"
-    android:paddingTop="28dp"
-    android:paddingBottom="28dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:paddingTop="18dp"
+    android:paddingBottom="8dp"
     android:background="@color/white">
 
-    <TextView
-        android:id="@+id/contentTextView"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:hint="@string/scan_result"
-        android:textSize="30sp"
-        android:gravity="center"
-        android:editable="false"/>
+        android:layout_height="match_parent"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="120dp" tools:context=".MainActivity">
 
-    <EditText
-        android:id="@+id/nameEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/contentTextView"
-        android:layout_marginTop="55dp"
-        android:hint="Enter product name"
-        android:gravity="center"
-        android:textSize="20sp"/>
 
-    <EditText
-	android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/nameEditText"
-        android:layout_marginTop="55dp"
-        android:inputType="numberDecimal"
-        android:id="@+id/priceEditText"
-        android:hint="Enter product price"
-        android:gravity="center"
-        android:textSize="20sp"/>
+        <TextView
+            android:id="@+id/contentTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:hint="@string/scan_result"
+            android:textSize="27sp"
+            android:gravity="center"
+            android:editable="false"/>
 
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/priceEditText"
-        android:layout_marginTop="55dp"
-        android:spinnerMode="dialog"/>
+        <EditText
+            android:id="@+id/nameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/contentTextView"
+            android:layout_marginTop="40dp"
+            android:hint="Enter product name"
+            android:gravity="center"
+            android:textSize="20sp"/>
+
+        <EditText
+            android:id="@+id/priceEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/nameEditText"
+            android:layout_marginTop="40dp"
+            android:inputType="numberDecimal"
+            android:hint="Enter product price"
+            android:gravity="center"
+            android:textSize="20sp"/>
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/priceEditText"
+            android:layout_marginTop="40dp"
+            android:spinnerMode="dialog"/>
+
+    </RelativeLayout>
+
 
     <Button
         android:id="@+id/bttnSubmit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="0dp"
+        android:layout_width="80dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/spinner"
-        android:layout_marginTop="60dp"
         android:text="Submit"
         android:textAllCaps="false"
         android:textSize="13sp"
         android:gravity="center"
         android:textColor="@color/black"
-        android:background="@color/lightgrey"
-        android:layout_alignTop="@+id/bttnAddToBasket"
-        android:typeface="monospace" />
+        android:layout_alignTop="@+id/bttnAddToBasket" />
 
 
     <ImageButton
         android:id="@+id/bttnAddToFavourites"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="fitCenter"
+        android:layout_width="60dp"
+        android:layout_height="55dp"
         android:background="@drawable/heartbuttonchanger"
-        android:layout_alignTop="@+id/bttnSubmit"
-        android:layout_alignLeft="@+id/spinner"
-        android:layout_alignStart="@+id/spinner" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+         />
 
     <ImageButton
         android:id="@+id/bttnAddToBasket"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="fitStart"
+        android:layout_width="60dp"
+        android:layout_height="50dp"
         android:background="@drawable/basketbuttonchanger"
         android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/spinner"
-        android:layout_alignEnd="@+id/spinner" />
+        android:layout_alignParentRight="true" />
 
 </RelativeLayout>
