@@ -30,7 +30,7 @@ import de.timroes.android.listview.EnhancedListView;
 public class BasketActivity extends ActionBarActivity {
 
     private ArrayList<String> basketProducts = new ArrayList<String>();
-    private ArrayList<Boolean> checked = new ArrayList<Boolean>();  //ta ticks diathrountai sto orientation change mesa ap to manifest file opou to activity den ginetai destroy
+    private ArrayList<Boolean> checked = new ArrayList<Boolean>();  //ticks are preserved in orientation change through the manifest file where the activity is not destroyed
     //private ArrayList<Boolean> thumbs = new ArrayList<Boolean>();
     ArrayAdapter<String> adapter;
     Button bttnBestPrice;
@@ -60,8 +60,8 @@ public class BasketActivity extends ActionBarActivity {
 
                 if(atLeastOneChecked==true)
                 {
-                    ArrayList<Boolean> checkedCopy = new ArrayList<Boolean>(checked); //logw parallhlou thread mporei na prokupsei provlima an peirazoun tin idia lista me to epomeno loop
-                    FileDeleteMultAsync async = new FileDeleteMultAsync();            //opote dhmiourw antigrafo kai peirazw auto sto allo thread
+                    ArrayList<Boolean> checkedCopy = new ArrayList<Boolean>(checked); //because of the parallel thread a problem may occur if another one changes the same list with the next loop
+                    FileDeleteMultAsync async = new FileDeleteMultAsync();            //so a copy is created and changed in the other thread
                     async.execute(checkedCopy);
 
                     for (int i = checked.size() - 1; i >= 0; i--)
@@ -118,7 +118,7 @@ public class BasketActivity extends ActionBarActivity {
 
 
         FileManipulation.populateListFromFile("basket.txt", basketProducts, getApplicationContext());
-        for(int i=0, j=basketProducts.size(); i<j; i++) checked.add(false);                                 //SOS
+        for(int i=0, j=basketProducts.size(); i<j; i++) checked.add(false);                                 
         //for(int i=0, j=basketProducts.size(); i<j; i++) thumbs.add(false);
         populateListView();
     }
