@@ -12,7 +12,7 @@ Each one had a role and i had done the programming part. During the course we us
 An android app that helps to shop cheaper in the vicinity of Ksanthi. The user can scan the barcode of a product, enter its price and compare it to the price of other markets he had gone.
 He can put his favourite products in a basket and check where it is cheaper to buy them together. There is also an indicator to show if a product price isn't available for a market. The distance 
 of each market from the current position of the user is provided in order to help him decide. Three 
-markets where included (and the caffee of the university).
+markets where included (and the caffee of the university :D).
   
 ![alt tag](https://github.com/chrispyl/Market-snipper/blob/master/app/src/main/res/drawable/logo_antialisasing.png)
 
