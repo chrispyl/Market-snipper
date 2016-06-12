@@ -36,7 +36,7 @@ public class FavouritesActivity extends ActionBarActivity {
         setContentView(R.layout.activity_favourites);
 
         FileManipulation.populateListFromFile("favourites.txt", favouriteProducts, getApplicationContext());
-        for(int i=0, j=favouriteProducts.size(); i<j; i++) existInBasket.add(false); //den exei shmasia to false tha allaksei mesa sthn populate listview analoga me thn eikona
+        for(int i=0, j=favouriteProducts.size(); i<j; i++) existInBasket.add(false); //false has no meaning here as it will change inside populate listview depending on the image
         populateListView();
     }
 
@@ -147,7 +147,7 @@ public class FavouritesActivity extends ActionBarActivity {
                             Collections.sort(sortedList);
                             FileManipulation.writeMany(sortedList, "basket.txt", getApplicationContext());
                             Toast.makeText(getBaseContext(), "Saved to basket", Toast.LENGTH_SHORT).show();
-                            adapter.notifyDataSetChanged(); //to notifyAdapterChanged ginetai sto telos autou giati edw prepei na ginetai elegxos afou teliwsei auth h diadikasia gia na mpainei to tick
+                            adapter.notifyDataSetChanged(); //notifyAdapterChanged is done in the end because here a check has to be made after this procedure has finished in order to put a tick
                         } else {
                             Toast.makeText(getBaseContext(), "Product already in basket", Toast.LENGTH_SHORT).show();
                         }
