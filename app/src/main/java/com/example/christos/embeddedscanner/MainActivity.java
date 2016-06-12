@@ -333,7 +333,7 @@ public class MainActivity extends ActionBarActivity {
     {
         @Override
         protected Void doInBackground(String... args) {
-        //args[0] to eiserxomeno string, args[1] to onoma tou arxeiou
+        //args[0] the input string, args[1] the file name
             FileManipulation.writeToFile(args[0], args[1], getApplicationContext());
             ArrayList<String> sortedList = new ArrayList<String>(FileManipulation.getArrayListFromFile(args[1], getApplicationContext()));
             Collections.sort(sortedList);
